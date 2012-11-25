@@ -1,7 +1,7 @@
 $LOAD_PATH << File.dirname(__FILE__)
 require 'mallow'
 require 'graham/version'
-# = A miniature test engine powered by Mallow
+# == A miniature test engine powered by Mallow
 # ---
 # Test cases are instance methods on classes defined in Graham's namespace,
 # and expectations on their return values are enumerated using a very slightly
@@ -17,9 +17,33 @@ require 'graham/version'
 #    that.test1.returns_a(Fixnum).such_that {self < 100}
 #    that.test2.returns 'TeST'
 #    that.test3.returns_a Numeric
-#  } #=> [[:test1, true], [:test2, false], [:test3, #<ZeroDivisionError>], [:test1, true]]
-# TODO:
-# * some kind of helper for concurrent expectation chains
+#  } #=> {:test1=>true, :test2=>false, :test3=>#<ZeroDivisionError>}
+#
+# A side effect of this approach is that you can use RDoc to document your
+# tests, gauge coverage, etc.
+#
+# === N.B.
+# Since a Graham test is basically a Mallow pattern matcher, only the first
+# test on a case will actually be executed, as subsequent invocations of the
+# test case will be matched by the first rule. This can lead to confusing
+# results:
+#
+#  Graham.test { |that|
+#    that.test1.returns_a(Fixnum)
+#    that.test1.returns_a(String)
+#  } #=> {:test1=>true}
+#
+# To avoid this issue, either run separate tests:
+#
+#  Graham.test {|that| that.test1.returns_a Fixnum} #=> {:test1=>true}
+#  Graham.test {|that| that.test1.returns_a String} #=> {:test1=>false}
+# 
+# Or (better) chain the tests you want to run:
+# 
+#  Graham.test { |that|
+#    that.test1.returns_a(Fixnum).and_returns_a(String)
+#  } #=> {:test1=>false}
+#
 module Graham
   autoload :PP,       'graham/pp'
   autoload :RakeTask, 'graham/rake_task'
