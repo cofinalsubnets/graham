@@ -75,8 +75,8 @@ module Graham
 
     def method_missing(msg, *args, &b)
       case msg.to_s
-      when /^(and|that)_(.+)$/
-        respond_to?($2)? send($2, *args, &b) : super
+      when /^((and|that)_)+(.+)$/
+        respond_to?($3)? send($3, *args, &b) : super
       else
         core.cases << (_case = @cases.method msg) rescue super
         rule!._this _case
@@ -100,17 +100,35 @@ module Graham
       }
     end
 
+    def does_not_raise(x=nil)
+      _where {
+        begin
+          call
+          true
+        rescue x => e
+          false
+        rescue
+          raise e
+        end
+      }
+    end
+
     alias is      this
     alias returns this
-    alias that_is this
 
     alias is_such_that where
     alias such_that    where
     alias and          where
+    alias that         where
 
     alias raises_an           raises
     alias raises_a            raises
     alias raises_an_exception raises
+
+    alias returns_                    does_not_raise
+    alias does_not_raise_a            does_not_raise
+    alias does_not_raise_an           does_not_raise
+    alias does_not_raise_an_exception does_not_raise
 
     alias is_a       a
     alias is_an      a
