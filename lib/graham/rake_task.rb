@@ -4,6 +4,10 @@ class Graham::RakeTask
   def initialize(opts = {})
     @dir    = opts[:dir]    || 'test'
     @ignore = opts[:ignore] || []
+    make_task
+  end
+
+  def make_task
     tests = []
     namespace :test do
       test_groups.each do |group|
@@ -18,6 +22,7 @@ class Graham::RakeTask
     end
     task test: tests
   end
+
   def test_groups
     ignore = [*@ignore].map {|d| %r|^#{@dir}/#{d}|}
     FileList["#{@dir}/**/*"].select {|f| File.directory? f}

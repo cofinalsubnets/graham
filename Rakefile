@@ -5,7 +5,13 @@ require 'graham/rake_task'
 Graham::RakeTask.new
 task default: :test
 
-task :gem do
-  sh "gem i #{`gem b graham.gemspec`.split("\n").last.split(/ /).last}"
+namespace :gem do
+  task :build do
+    sh "gem b graham.gemspec"
+  end
+  task :install do
+    sh "gem i #{Dir.glob('graham-*.gem').sort.last}"
+  end
 end
+task gem: %w{ gem:build gem:install }
 
