@@ -114,7 +114,7 @@ module Graham
       when /^((and|that)_)+(.+)$/
         respond_to?($3)? send($3, *args, &b) : super
       else
-        core.cases << (_case = @cases.method msg) rescue super
+        core.cases << (_case = @cases.method msg)
         rule!._this _case
       end
     end
