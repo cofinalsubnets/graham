@@ -1,6 +1,6 @@
 # Graham #
 
-Graham is a tiny-yet-useful testing library based on Mallow - in fact it _is_ Mallow, with a slightly tweaked DSL and some extra exception handling, bundled with a trivial pretty printer and a helper for Rake tasks. It was written to handle Mallow's unit tests because:
+Graham is a tiny-yet-useful testing library based on Mallow - in fact it _is_ Mallow, with a tweaked DSL and some extra exception handling, bundled with a trivial pretty printer and a helper for Rake tasks. It was written to handle Mallow's unit tests because:
 * Test::Unit was too ugly
 * TestRocket was too minimal
 * RSpec was too verbose (not to mention ridiculous overkill)
