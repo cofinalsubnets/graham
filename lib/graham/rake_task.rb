@@ -39,7 +39,7 @@ class Graham::RakeTask
       end
       test_groups.each do |group|
         tests << name = group.sub(/\//,?:).sub(@dir.to_s,@name.to_s)
-        desc "load files in #{group}"
+        desc "[Graham] load files in #{group}"
         task name.sub(/^#{@name}:/,'') do
           Dir["#{group}/*.rb"].each do |file|
             puts "\x1b[4m        #{file.sub(/\.rb$/,'')}\x1b[0m"
@@ -49,7 +49,7 @@ class Graham::RakeTask
       end
       task timed: [ "#{@name}:timed:start", @name, "#{@name}:timed:stop" ]
     end
-    desc "load all test files"
+    desc "[Graham] load all test files"
     task @name => tests
     tests.each do |test|
       task "#{test}:timed" => [ "#{@name}:timed:start", test, "#{@name}:timed:stop" ]
