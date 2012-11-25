@@ -19,9 +19,6 @@ require 'graham/version'
 #    that.test3.returns_a Numeric
 #  } #=> {:test1=>true, :test2=>false, :test3=>#<ZeroDivisionError>}
 #
-# A side effect of this approach is that you can use RDoc to document your
-# tests, gauge coverage, etc.
-#
 # === N.B.
 # Since a Graham test is basically a Mallow pattern matcher, only the first
 # test on a case will actually be executed, as subsequent invocations of the
