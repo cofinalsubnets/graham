@@ -98,9 +98,9 @@ module Graham
       end
     end
 
-    def where(&b);  super {|e| preproc(b)[e.call] } end
-    def _this(o);   _where {|e|e==o}    end
-    def _where(&b); push b, :conditions end
+    def _where(&b); push b, :conditions              end
+    def _this(o);   _where {|e|e==o}                 end
+    def where(&b);  _where {|e| preproc(b)[e.call] } end
 
     def raises(x=nil)
       _where {
