@@ -122,8 +122,8 @@ module Graham
           true
         rescue x => e
           false
-        rescue
-          raise e
+        rescue   => e
+          x ? raise(e) : false
         end
       }
     end

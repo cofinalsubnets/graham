@@ -34,7 +34,7 @@ class Graham::RakeTask
           @start = Time.now
         end
         task :stop do
-          puts "Tests completed after #{Time.now - @start} seconds."
+          puts "Finished in #{Time.now - @start} seconds."
         end
       end
       test_groups.each do |group|
@@ -46,12 +46,12 @@ class Graham::RakeTask
           end
         end
       end
+      task timed: [ "#{@name}:timed:start", @name, "#{@name}:timed:stop" ]
     end
     task @name => tests
     tests.each do |test|
       task "#{test}:timed" => [ "#{@name}:timed:start", test, "#{@name}:timed:stop" ]
     end
-    task timed: [ "#{@name}:timed:start", @name, "#{@name}:timed:stop" ]
   end
 
   def test_groups
