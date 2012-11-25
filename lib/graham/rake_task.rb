@@ -1,13 +1,14 @@
 require 'graham'
 class Graham::RakeTask
   include Rake::DSL
-  def initialize; task! end
-  def task!
+  def initialize(opts = {})
+    @dir    = opts[:dir]    || 'test'
+    @ignore = opts[:ignore] || []
     tests = []
     namespace :test do
       test_groups.each do |group|
         tests << name = group.sub(/\//,?:)
-        task name.sub(/^test:/,'') do
+        task name.sub(/^#{@dir}:/,'') do
           Dir["#{group}/*.rb"].each do |test_file|
             puts "\x1b[4m        #{test_file.sub(/\.rb$/,'')}\x1b[0m"
             load test_file
@@ -17,6 +18,10 @@ class Graham::RakeTask
     end
     task test: tests
   end
-  def test_groups; FileList['test/**/*'].select {|f| File.directory? f} end
+  def test_groups
+    ignore = [*@ignore].map {|d| %r|^#{@dir}/#{d}|}
+    FileList["#{@dir}/**/*"].select {|f| File.directory? f}
+      .reject {|d| ignore.any? {|i| d=~i}}
+  end
 end
 
