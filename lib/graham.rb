@@ -1,19 +1,19 @@
 $LOAD_PATH << File.dirname(__FILE__)
 require 'mallow'
 require 'graham/version'
-# = A test engine powered by Mallow
+# = A miniature test engine powered by Mallow
 # ---
 # Test cases are instance methods on classes defined in Graham's namespace,
 # and expectations on their return values are enumerated using a very slightly
 # modified Mallow::DSL.
 # 
-#  class Graham::TestCases
+#  class Graham::Cases
 #    def test1; 4 + 5 end
 #    def test2; 'test'.upcase end
 #    def test3; 1/0 end
 #  end
 #
-#  Graham.ns(:TestCases) { |that|
+#  Graham.test { |that|
 #    that.test1.returns_a(Fixnum).such_that {self < 100}
 #    that.test2.returns 'TeST'
 #    that.test3.returns_a Numeric
@@ -21,25 +21,40 @@ require 'graham/version'
 # TODO:
 # * some kind of helper for concurrent expectation chains
 module Graham
-  autoload :PP, 'graham/pp'
+  autoload :PP,       'graham/pp'
+  autoload :RakeTask, 'graham/rake_task'
   # Namespace for test cases; see documentation for Graham
   class Cases; end
   class << self
-    # A convenience method that builds and executes a Graham::Cracker
+    # A convenience method that builds and executes a Graham::Core
     # in the given namespace (defaults to Cases). See documentation for
     # Graham for more on usage.
-    def ns(ns=self::Cases, &b)
+    def test(ns=self::Cases, &b)
       ns=const_get(ns) if ns.is_a? Symbol
-      Graham::Cracker.build(ns, &b).test
+      Graham::Core.build(ns, &b).test
     end
-    # A convenience methods that calls ::ns and passes the output to a
+    # A convenience methods that calls ::test and passes the output to a
     # pretty printer.
     def pp(ns=self::Cases, &b)
-      PP[ self.ns ns,&b ]
+      PP.new(test ns,&b).pp
     end
+
+    def compose(ns=nil, *test_groups)
+
+    end
+
+    alias test_in test
+
+    private
+    def ns_compose(test_groups)
+      test_groups.map do |ns, tests|
+        [ ns, tests.map {|test| test ns, &test} ]
+      end
+    end
+
   end
 
-  class Cracker < Mallow::Core
+  class Core < Mallow::Core
     attr_accessor :cases
     def initialize(*args)
       @cases = []
@@ -57,7 +72,7 @@ module Graham
       end
     end
 
-    def test; _fluff @cases end
+    def test; Hash[_fluff @cases] end
     def self.build(ns, &b); DSL.build ns, &b end
   end
 
@@ -69,7 +84,7 @@ module Graham
     end
 
     def initialize(ns)
-      @core, @cases = Cracker.new, ns.new
+      @core, @cases = Core.new, ns.new
       reset!
     end
 
