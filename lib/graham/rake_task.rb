@@ -2,14 +2,15 @@ require 'graham'
 class Graham::RakeTask
   include Rake::DSL
   def initialize(opts = {})
-    @dir    = opts[:dir]    || 'test'
+    @dir    = opts[:dir]    || :test
     @ignore = opts[:ignore] || []
+    @name   = opts[:name]   || @dir
     make_task
   end
 
   def make_task
     tests = []
-    namespace :test do
+    namespace @name do
       namespace :timed do
         task :start do
           @start = Time.now
@@ -18,18 +19,18 @@ class Graham::RakeTask
           puts "Tests completed after #{Time.now - @start} seconds."
         end
       end
-      task timed: %w{ test:timed:start test test:timed:stop }
+      task timed: [ "#{@name}:timed:start", @name, "#{@name}:timed:stop" ]
       test_groups.each do |group|
-        tests << name = group.sub(/\//,?:)
-        task name.sub(/^#{@dir}:/,'') do
-          Dir["#{group}/*.rb"].each do |test_file|
-            puts "\x1b[4m        #{test_file.sub(/\.rb$/,'')}\x1b[0m"
-            load test_file
+        tests << name = group.sub(/\//,?:).sub(@dir.to_s,@name.to_s)
+        task name.sub(/^#{@name}:/,'') do
+          Dir["#{group}/*.rb"].each do |file|
+            puts "\x1b[4m        #{file.sub(/\.rb$/,'')}\x1b[0m"
+            load file
           end
         end
       end
     end
-    task test: tests
+    task @name => tests
   end
 
   def test_groups
