@@ -1,6 +1,6 @@
-# A trivial pretty printer for test output.
-# TODO: replace with something better
 module Graham
+  # A trivial pretty printer for test output.
+  # TODO: replace with something better
   class PP
     attr_reader :results
     attr_accessor :bt, :out, :color
