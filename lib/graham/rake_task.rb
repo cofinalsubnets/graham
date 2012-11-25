@@ -10,6 +10,15 @@ class Graham::RakeTask
   def make_task
     tests = []
     namespace :test do
+      namespace :timed do
+        task :start do
+          @start = Time.now
+        end
+        task :stop do
+          puts "Tests completed after #{Time.now - @start} seconds."
+        end
+      end
+      task timed: %w{ test:timed:start test test:timed:stop }
       test_groups.each do |group|
         tests << name = group.sub(/\//,?:)
         task name.sub(/^#{@dir}:/,'') do
