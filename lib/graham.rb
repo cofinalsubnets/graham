@@ -111,6 +111,8 @@ module Graham
 
     def method_missing(msg, *args, &b)
       case msg.to_s
+      when /^((and|that)_)*(is|returns)_an?_(.+)$/
+        super "a_#{$4}"
       when /^((and|that)_)+(.+)$/
         respond_to?($3)? send($3, *args, &b) : super
       else
