@@ -45,26 +45,23 @@ module Graham
   autoload :PP,       'graham/pp'
   autoload :RakeTask, 'graham/rake_task'
   autoload :DSL,      'graham/dsl'
-  # Namespace for test cases; see documentation for Graham
-  class Cases; end
   class << self
     # A convenience method that builds and executes a Graham::Core
     # in the given namespace (defaults to Cases). See documentation for
     # Graham for more on usage.
-    def test(ns=self::Cases, &b)
-      ns=const_get(ns) if ns.is_a? Symbol
-      Graham::Core.build(ns, &b).test
+    def test(ns, &b)
+      DSL.build_core(ns, &b).test
     end
-    # A convenience methods that calls ::test and passes the output to a
+    # A convenience method that calls ::test and passes the output to a
     # pretty printer.
-    def pp(ns=self::Cases, &b)
+    def pp(ns, &b)
       PP.new(test ns,&b).pp
     end
   end
 
   class Core < Mallow::Core
     attr_accessor :cases
-    def initialize(*args)
+    def initialize
       @cases = []
       super
     end
@@ -73,7 +70,7 @@ module Graham
       [e.name] << begin
         super e
         true
-      rescue Mallow::DeserializationException
+      rescue Mallow::MatchException
         false
       rescue => err
         err
@@ -81,7 +78,6 @@ module Graham
     end
 
     def test; Hash[_fluff @cases] end
-    def self.build(ns, &b); DSL.build ns, &b end
   end
 end
 
