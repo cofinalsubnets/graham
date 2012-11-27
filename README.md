@@ -5,32 +5,32 @@ Graham is a tiny-yet-useful testing library based on Mallow - in fact it _is_ Ma
 * TestRocket was too minimal
 * RSpec was too verbose (not to mention ridiculous overkill)
 
-## How i graham ##
+## How does one graham ##
 
-Graham test cases are instance methods on classes defined in Graham's namespace:
+Graham test cases are instance methods on arbitrary classes:
 ```ruby
-  class Graham::TestCases
+  class TestCases
     def initialize
       @number = 1
     end
-    def Case1
+    def one_squared
       @number ** 2
     end
-    def Case2
+    def dividing_one_by_zero
       @number / 0
     end
-    def Case3
+    def calling_a_nonexistent_method
       Graham.this_is_not_a_method
     end
   end
 ```
 Then test your cases:
 ```ruby
-  Graham.test(:TestCases) do |that|
-    that.Case1.is_such_that { self == 1 }
-    that.Case2.is_a(Fixnum).such_that {self > 1}
-    that.Case3.does_not_raise_an_exception
-  end #=> {:Case1=>true, :Case2=>#<ZeroDivisionError>, :Case3=>false}
+  Graham.test(TestCases) do |that|
+    that.one_squared.is 1
+    that.dividing_by_zero.returns_a(Fixnum).such_that {self > 1}
+    that.calling_a_nonexistent_method.does_not_raise_an_exception
+  end #=> {:one_squared=>true, :dividing_by_zero=>#<ZeroDivisionError>, :calling_a_nonexistent_method=>false}
 ```
-Calling Graham#pp instead will call Graham#test and run the output through Graham's built-in pretty printer.
+Calling Graham::pp instead will call Graham::test and run the output through Graham's built-in pretty printer.
 
