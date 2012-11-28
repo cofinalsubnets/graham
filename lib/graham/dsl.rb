@@ -16,13 +16,13 @@ module Graham
       when /^((and|that)_)+(.+)$/
         respond_to?($3)? send($3, *args, &b) : super
       else
-        core.cases << (_case = @ns.method msg)
+        core.cases << (_case = msg)
         (conditions.empty?? self : rule!)._where {|e|e==_case}
       end
     end
 
     def _where(&b); push b, :conditions              end
-    def where(&b);  _where {|e| preproc(b)[e.call] } end
+    def where(&b);  _where {|e| preproc(b)[@ns.send e] } end
 
     def raises(x=nil)
       _where {
@@ -48,6 +48,11 @@ module Graham
           x ? raise(e) : false
         end
       }
+    end
+
+    def rule!
+      @ns=@ns.class.new
+      super
     end
 
     alias is      this

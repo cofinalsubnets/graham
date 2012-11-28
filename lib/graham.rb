@@ -67,7 +67,7 @@ module Graham
     end
 
     def _fluff1(e)
-      [e.name] << begin
+      [e] << begin
         super e
         true
       rescue Mallow::MatchException
