@@ -17,7 +17,7 @@ module Graham
         respond_to?($3)? send($3, *args, &b) : super
       else
         core.cases << (_case = @ns.method msg)
-        rule!._where {|e|e==_case}
+        (conditions.empty?? self : rule!)._where {|e|e==_case}
       end
     end
 

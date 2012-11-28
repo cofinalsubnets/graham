@@ -1,9 +1,9 @@
-class Cases
+class TestCases
   def DocTest1; 4 + 5 end
   def DocTest2; 'test'.upcase end
   def DocTest3; 1/0  end
   def rdoc_example
-    Graham.test(Cases) { |that|
+    Graham.test(TestCases) { |that|
       that.DocTest1.returns_a(Fixnum).such_that {self < 100}
       that.DocTest2.returns 'TeST'
       that.DocTest3.returns_a(Numeric)
@@ -23,7 +23,7 @@ class Cases
     Graham.this_is_not_a_method
   end
   def readme_example
-    Graham.test(Cases) do |that|
+    Graham.test(TestCases) do |that|
       that.ReadmeCase1.is_such_that { self == 1 }
       that.ReadmeCase2.is_a(Fixnum).such_that {self > 1}
       that.ReadmeCase3.does_not_raise_an_exception
@@ -31,11 +31,7 @@ class Cases
   end
 end
 
-class Namespace
-  def namespacing; self end
-end
-
-Graham.pp(Cases) do |that|
+Graham.pp(TestCases) do |that|
   that.rdoc_example.returns_a(Hash).of_size(3).such_that {
     self[:DocTest1] == true  and
     self[:DocTest2] == false and
@@ -46,12 +42,5 @@ Graham.pp(Cases) do |that|
     self[:ReadmeCase2].is_a? ZeroDivisionError and
     self[:ReadmeCase3] == false
   }
-end
-
-Graham.pp(Namespace) do |that|
-  that.namespacing.is_such_that {
-    self.class == Namespace
-  }.and {!respond_to? :rdoc_example
-  }.and { respond_to? :namespacing}
 end
 
