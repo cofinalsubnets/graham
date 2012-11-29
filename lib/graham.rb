@@ -3,21 +3,27 @@ require 'mallow'
 require 'graham/version'
 # == A miniature test engine powered by Mallow
 # ---
-# Test cases are instance methods on classes defined in Graham's namespace,
-# and expectations on their return values are enumerated using a very slightly
-# modified Mallow::DSL.
+# Test cases are instance methods on arbitrary classes, and expectations on
+# their return values are enumerated using a very slightly modified
+# Mallow::DSL.
 # 
-#  class Graham::Cases
-#    def test1; 4 + 5 end
-#    def test2; 'test'.upcase end
-#    def test3; 1/0 end
+#  class Cases
+#    def four_plus_five
+#      4 + 5 
+#    end
+#    def upcasing(s)
+#      s.upcase
+#    end
+#    def one_divided_by_zero
+#      1/0
+#    end
 #  end
 #
-#  Graham.test { |that|
-#    that.test1.returns_a(Fixnum).such_that {self < 100}
-#    that.test2.returns 'TeST'
-#    that.test3.returns_a Numeric
-#  } #=> {:test1=>true, :test2=>false, :test3=>#<ZeroDivisionError>}
+#  Graham.test(Cases) { |that|
+#    that.four_plus_five.is 9
+#    that.upcasing('test').returns 'TeST'
+#    that.one_divided_by_zero.equals :infinity
+#  } #=> {:four_plus_five=>true, :upcasing=>false, :one_divided_by_zero=>#<ZeroDivisionError>}
 #
 # === N.B.
 # Since a Graham test is basically a Mallow pattern matcher, only the first
@@ -25,21 +31,21 @@ require 'graham/version'
 # test case will be matched by the first rule. This can lead to confusing
 # results:
 #
-#  Graham.test { |that|
-#    that.test1.returns_a(Fixnum)
-#    that.test1.returns_a(String)
-#  } #=> {:test1=>true}
+#  Graham.test(Cases) { |that|
+#    that.four_plus_five.returns_a(Fixnum)
+#    that.four_plus_five.returns_a(String)
+#  } #=> {:four_plus_five=>true}
 #
 # To avoid this issue, either run separate tests:
 #
-#  Graham.test {|that| that.test1.returns_a Fixnum} #=> {:test1=>true}
-#  Graham.test {|that| that.test1.returns_a String} #=> {:test1=>false}
+#  Graham.test(Cases) {|that| that.four_plus_five.returns_a Fixnum} #=> {:four_plus_five=>true}
+#  Graham.test(Cases) {|that| that.four_plus_five.returns_a String} #=> {:four_plus_five=>false}
 # 
 # Or (better) chain the tests you want to run:
 # 
-#  Graham.test { |that|
-#    that.test1.returns_a(Fixnum).and_returns_a(String)
-#  } #=> {:test1=>false}
+#  Graham.test(Cases) { |that|
+#    that.four_plus_five.returns_a(Fixnum).that {is_a? String}
+#  } #=> {:four_plus_five=>false}
 #
 module Graham
   autoload :PP,       'graham/pp'
@@ -57,12 +63,13 @@ module Graham
     def pp(ns, &b)
       PP.new(test ns,&b).pp
     end
+    alias test! pp
   end
 
   class Core < Mallow::Core
-    attr_accessor :cases
+    attr_reader :cases
     def initialize
-      @cases = []
+      @cases = {}
       super
     end
 
@@ -77,7 +84,7 @@ module Graham
       end
     end
 
-    def test; Hash[_fluff @cases] end
+    def test; Hash[_fluff @cases.keys] end
   end
 end
 

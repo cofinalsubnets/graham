@@ -16,13 +16,18 @@ module Graham
       when /^((and|that)_)+(.+)$/
         respond_to?($3)? send($3, *args, &b) : super
       else
-        core.cases << (_case = msg)
-        (conditions.empty?? self : rule!)._where {|e|e==_case}
+        core.cases[msg] = args
+        (conditions.empty?? self : rule!)._where {|e|e==msg}
       end
     end
 
-    def _where(&b); push b, :conditions              end
-    def where(&b);  _where {|e| preproc(b)[@ns.new.send e] } end
+    def _where(&b)
+      push b, :conditions
+    end
+
+    def where(&b)
+      _where {|e| preproc(b).call @ns.new.send(e, *core.cases[e]) }
+    end
 
     def raises(x=nil)
       _where {
@@ -52,6 +57,7 @@ module Graham
 
     alias is      this
     alias returns this
+    alias equals  this
 
     alias is_such_that where
     alias such_that    where

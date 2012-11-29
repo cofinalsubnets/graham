@@ -10,23 +10,21 @@ class TestCases
     }
   end
 
-  def initialize
-    @number = 1
+  def squaring(n)
+    n ** 2
   end
-  def ReadmeCase1
-    @number ** 2
+
+  def dividing_by_zero(n)
+    n / 0
   end
-  def ReadmeCase2
-    @number / 0
-  end
-  def ReadmeCase3
+  def calling_a_nonexistent_method
     Graham.this_is_not_a_method
   end
   def readme_example
     Graham.test(TestCases) do |that|
-      that.ReadmeCase1.returns 1
-      that.ReadmeCase2.is_a(Fixnum).such_that {self > 1}
-      that.ReadmeCase3.does_not_raise_an_exception
+      that.squaring(1).returns 1
+      that.dividing_by_zero(1).returns_a(Fixnum)
+      that.calling_a_nonexistent_method.does_not_raise_an_exception
     end 
   end
 end
@@ -38,9 +36,9 @@ Graham.pp(TestCases) do |that|
     h[:DocTest3].is_a? ZeroDivisionError
   }
   that.readme_example.returns_a(Hash).of_size(3).such_that {|h|
-    h[:ReadmeCase1] == true and
-    h[:ReadmeCase2].is_a? ZeroDivisionError and
-    h[:ReadmeCase3] == false
+    h[:squaring] == true and
+    h[:dividing_by_zero].is_a? ZeroDivisionError and
+    h[:calling_a_nonexistent_method] == false
   }
 end
 
