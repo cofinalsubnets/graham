@@ -35,8 +35,14 @@ Graham.test!(TestCases.new) do |that|
     values[2].is_a? ZeroDivisionError
   }
   that.readme_example.returns_a(Hash).of_size(3).such_that {
-    values.values_at(0,2) == [true, false] and
-    values[1].is_a? ZeroDivisionError
+    values[0] == true and
+    values[1].is_a?(ZeroDivisionError) and
+    values[2].is_a?(NameError)
   }
 end
+
+Graham.test!(500) {|that|
+  that.it==500
+  that.it!=501
+}
 

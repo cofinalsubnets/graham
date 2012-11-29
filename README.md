@@ -1,7 +1,7 @@
 Graham
 ------
 
-Graham is a small-but-strong testing library based on Mallow - in fact it _is_ Mallow, with a tweaked DSL and some extra exception handling, bundled with a trivial pretty printer and a helper for Rake tasks. It was written to handle Mallow's unit tests because:
+Graham is a small-but-strong testing library based on Mallow, with a heavily tweaked DSL and some extra exception handling, bundled with a trivial pretty printer and a helper for Rake tasks. It was written to handle Mallow's unit tests out of sheer perversity and also because:
 * Test::Unit was too ugly
 * TestRocket was too minimal
 * RSpec was too verbose (not to mention ridiculous overkill)
@@ -22,15 +22,15 @@ Installation
 ```
 
 But how to use ???
-----------------------
+------------------
 
 Graham test cases are just ordinary methods on arbitrary objects:
 ```ruby
-  Graham.test {|that|
-    that[1].even?.is true
-  } #=> {#<TestCase ...> => false}
+  Graham.test(500) {|that|
+    that.it.is_a(Fixnum).and.that.it.is {even?}
+  } #=> {#<TestCase ...> => true, #<TestCase ...> => true}
 ```
-You can optionally specify a default receiver for tests:
+You can inline all your tests if you want to, but a less reckless approach (and one that coaxes nicer output out of the pretty printer) looks like:
 ```ruby
   class Cases
     def initialize
@@ -47,14 +47,15 @@ You can optionally specify a default receiver for tests:
     end
   end
 
-  Graham.test(Cases.new) do |that|
+  Graham.test(Cases.new) {|that|
     that.one_squared.is 1
     that.dividing_one_by_zero.returns_a(Fixnum).such_that {|n| n > 1}
     that.calling_upcase_on(Graham).does_not_raise_an_exception
-  end
+  } #=> pass, caught exception, fail
 ```
-See RDoc documentation for more details on usage, and for information on how to use the Rake helper. Hint:
+See RDoc documentation for more details on usage, and for information on how to use the Rake helper.
 ```ruby
+  # hint:
   require 'graham/rake_task'
   Graham::RakeTask.new
   task default: :test

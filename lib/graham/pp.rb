@@ -17,7 +17,7 @@ module Graham
         when true
           [hi('PASS', GREEN), lo(tc)]
         when false
-          [hi('FAIL', RED),   lo(tc), "#=> #{tc.go}"]
+          [hi('FAIL', RED),   lo(tc), display(tc)]
         else
           [hi('XPTN', RED),   lo(tc), result.class.name, result.message] + backtrace(result, bt)
         end.join ' :: '
@@ -30,5 +30,9 @@ module Graham
 
     def hi(str, c); (color ? BOLD+c : '')+str.to_s  end
     def lo(str);    (color ? PLAIN  : '')+str.to_s  end
+
+    def display(tc)
+      "got an unexpected #{"instance of #{tc.go.class}" rescue "exception"}"
+    end
   end
 end

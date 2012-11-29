@@ -12,8 +12,7 @@ module Graham
     end
 
     def method_missing(msg, *args, &b)
-      core.cases << (tc=TestCase.new @subj, msg, args, b)
-      (conditions.empty?? self : rule!).__send__(:push) {|e|e==tc}
+      _case msg, args, b
     end
 
     # Add a condition on a test case's return value. If the given block
@@ -23,6 +22,26 @@ module Graham
       push {|e| preproc(b).call e.go }
     end
 
+    # Expose the test object as a test case, so that the next condition
+    # given will be applied directly to the object. The current implementation
+    # is an egregious hack using Object#tap, which produces fairly
+    # sub-optimal output through the pretty printer. This might make 
+    # test specifications more semantic in some cases but it's probably better
+    # to access the test object through its own methods instead.
+    def it
+      _case(:tap, [], ::Proc.new {})
+    end
+
+    # With a block _b_, equivalent to #where _b_. With no block and an
+    # argument _a_, equivalent to #this(a).
+    def is(a=nil,&b)
+      b ? where(&b) : this(a)
+    end
+
+    # With an argument _x_, if the case raises an exception _e_ such that 
+    # _x_ === _e_, returns true, else if the case raises no exception returns
+    # false, else raises the exception. With no argument, returns true
+    # if the case raises any exception, else false.
     def raises(x=nil)
       push {|tc|
         begin
@@ -36,6 +55,11 @@ module Graham
       }
     end
 
+    # With an argument _x_, if the case raises an exception _e_ such that
+    # _x_ === _e_, returns false; if the case raises no exception, returns
+    # true; if the case raises an unexpected exception, raises the exception.
+    # With no argument, returns true if no exception is raised, else raises
+    # the exception.
     def does_not_raise(x=nil)
       push {|tc|
         begin
@@ -43,29 +67,28 @@ module Graham
           true
         rescue x => e
           false
-        rescue   => e
-          x ? raise(e) : false
         end
       }
     end
 
+    # With a block _b_, equivalent to #where _b_. With no block, returns self
+    # for semantic test chaining.
     def and(&b)
       b ? where(&b) : self
     end
 
-    alias is      this
+    alias that and
+
     alias returns this
     alias equals  this
 
     alias is_such_that where
     alias such_that    where
-    alias that         and
 
     alias raises_an           raises
     alias raises_a            raises
     alias raises_an_exception raises
 
-    alias returns_                    does_not_raise
     alias does_not_raise_a            does_not_raise
     alias does_not_raise_an           does_not_raise
     alias does_not_raise_an_exception does_not_raise
@@ -75,13 +98,19 @@ module Graham
     alias returns_a  a
     alias returns_an a
 
-    private
+    protected
     def push(&p)
       conditions << p
       self
     end
 
-    class TestCase < ::Struct.new(:obj, :msg, :args, :blk)
+    private
+    def _case(msg,args,b)
+      core.cases << (tc=TestCase.new @subj, msg, args, b, core.cases.size)
+      rule!.push {|e|e==tc}
+    end
+
+    class TestCase < ::Struct.new(:obj, :msg, :args, :blk, :id)
       def go
         defined?(@val) ? @val : (@val = obj.send msg, *args, &blk)
       end
