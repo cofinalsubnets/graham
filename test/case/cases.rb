@@ -30,15 +30,13 @@ class TestCases
 end
 
 Graham.pp(TestCases) do |that|
-  that.rdoc_example.returns_a(Hash).of_size(3).such_that {|h|
-    h[:DocTest1] == true  and
-    h[:DocTest2] == false and
-    h[:DocTest3].is_a? ZeroDivisionError
+  that.rdoc_example.returns_a(Hash).of_size(3).such_that {
+    values[0..1] == [true, false] and
+    values[2].is_a? ZeroDivisionError
   }
-  that.readme_example.returns_a(Hash).of_size(3).such_that {|h|
-    h[:squaring] == true and
-    h[:dividing_by_zero].is_a? ZeroDivisionError and
-    h[:calling_a_nonexistent_method] == false
+  that.readme_example.returns_a(Hash).of_size(3).such_that {
+    values.values_at(0,2) == [true, false] and
+    values[1].is_a? ZeroDivisionError
   }
 end
 

@@ -55,12 +55,12 @@ module Graham
     # A convenience method that builds and executes a Graham::Core
     # in the given namespace (defaults to Cases). See documentation for
     # Graham for more on usage.
-    def test(ns, &b)
+    def test(ns=nil, &b)
       DSL.build_core(ns, &b).test
     end
     # A convenience method that calls ::test and passes the output to a
     # pretty printer.
-    def pp(ns, &b)
+    def pp(ns=nil, &b)
       PP.new(test ns,&b).pp
     end
     alias test! pp
@@ -69,11 +69,12 @@ module Graham
   class Core < Mallow::Core
     attr_reader :cases
     def initialize
-      @cases = {}
+      @cases = []
       super
     end
 
     def _fluff1(e)
+      #binding.pry
       [e] << begin
         super e
         true
@@ -84,7 +85,7 @@ module Graham
       end
     end
 
-    def test; Hash[_fluff @cases.keys] end
+    def test; Hash[_fluff @cases] end
   end
 end
 

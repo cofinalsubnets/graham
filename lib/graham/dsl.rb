@@ -3,7 +3,7 @@ module Graham
     include Mallow::DSL::Matchers
     def self.build_core(ns)
       yield(dsl = new(ns))
-      dsl.finish!
+      dsl.send(:rule!).core
     end
 
     def initialize(ns)
@@ -16,23 +16,23 @@ module Graham
       when /^((and|that)_)+(.+)$/
         respond_to?($3)? send($3, *args, &b) : super
       else
-        core.cases[msg] = args
-        (conditions.empty?? self : rule!)._where {|e|e==msg}
+        _case TestCase.new((@obj ? _unprime : @ns.new), msg, args, b)
       end
     end
 
-    def _where(&b)
-      push b, :conditions
+    def where(&b)
+      push {|e| preproc(b).call e.go }
     end
 
-    def where(&b)
-      _where {|e| preproc(b).call @ns.new.send(e, *core.cases[e]) }
+    def subject(obj)
+      @obj=obj
+      self
     end
 
     def raises(x=nil)
-      _where {
+      push {|tc|
         begin
-          call
+          tc.go
           false
         rescue x => e
           true
@@ -43,9 +43,9 @@ module Graham
     end
 
     def does_not_raise(x=nil)
-      _where {
+      push {|tc|
         begin
-          call
+          tc.go
           true
         rescue x => e
           false
@@ -77,7 +77,31 @@ module Graham
     alias is_an      a
     alias returns_a  a
     alias returns_an a
+    alias [] subject
 
+    private
+    def push(&p)
+      conditions << p
+      self
+    end
+
+    def _unprime
+      obj=@obj
+      @obj=nil
+      obj
+    end
+
+    def _case(tc)
+      core.cases << tc
+      (conditions.empty?? self : rule!).send(:push) {|e|e==tc}
+    end
+
+    class TestCase < Struct.new('TestCase', :obj, :msg, :args, :blk)
+      def go; obj.send msg, *args, &blk end
+      def to_s
+        "#{Class===obj ? '::' : ?#}#{msg}(#{args.join ', '})#{" {...}" if blk}"
+      end
+    end
   end
 end
 

@@ -12,14 +12,14 @@ module Graham
       @results, @bt, @out, @color = results, bt, out, color
     end
     def pp
-      results.each do |name, result|
+      results.each do |tc, result|
         out.puts case result
         when true
-          [hi('PASS', GREEN), lo(name)]
+          [hi('PASS', GREEN), lo(tc)]
         when false
-          [hi('FAIL', RED),   lo(name)]
+          [hi('FAIL', RED),   lo(tc), "#=> #{tc.go}"]
         else
-          [hi('XPTN', RED),   lo(name), result.class.name, result.message] + backtrace(result, bt)
+          [hi('XPTN', RED),   lo(tc), result.class.name, result.message] + backtrace(result, bt)
         end.join ' :: '
       end
     end
