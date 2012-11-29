@@ -14,6 +14,13 @@ Features
 * Hackable with a small code footprint
 * Testing paradigm does not necessitate the gratuitous reinvention of such language features as inheritance, namespacing, and variable assignment (unlike some other frameworks that i sometimes have to use :/)
 
+Installation
+------------
+
+```shell
+  gem install graham
+```
+
 But how to use ???
 ----------------------
 
@@ -42,7 +49,7 @@ You can optionally specify a default receiver for tests:
 
   Graham.test(Cases.new) do |that|
     that.one_squared.is 1
-    that.dividing_by_zero.returns_a(Fixnum).such_that {|n| n > 1}
+    that.dividing_one_by_zero.returns_a(Fixnum).such_that {|n| n > 1}
     that.calling_upcase_on(Graham).does_not_raise_an_exception
   end
 ```
@@ -52,5 +59,4 @@ See RDoc documentation for more details on usage, and for information on how to 
   Graham::RakeTask.new
   task default: :test
 ```
-
 
