@@ -3,7 +3,7 @@ require 'rake'
 require 'graham/version'
 
 graham = Gem::Specification.new do |spec|
-  spec.add_dependency 'mallow', '>=0.0.4'
+  spec.add_dependency 'mallow', '>=0.0.5a'
   spec.name        = 'graham'
   spec.version     = Graham::VERSION
   spec.author      = 'feivel jellyfish'
