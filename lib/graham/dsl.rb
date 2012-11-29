@@ -81,7 +81,7 @@ module Graham
       self
     end
 
-    class TestCase < Struct.new(:obj, :msg, :args, :blk)
+    class TestCase < ::Struct.new(:obj, :msg, :args, :blk)
       def go
         defined?(@val) ? @val : (@val = obj.send msg, *args, &blk)
       end
