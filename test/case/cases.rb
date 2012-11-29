@@ -24,7 +24,7 @@ class TestCases
   end
   def readme_example
     Graham.test(TestCases) do |that|
-      that.ReadmeCase1.is_such_that { self == 1 }
+      that.ReadmeCase1.returns 1
       that.ReadmeCase2.is_a(Fixnum).such_that {self > 1}
       that.ReadmeCase3.does_not_raise_an_exception
     end 
@@ -32,15 +32,15 @@ class TestCases
 end
 
 Graham.pp(TestCases) do |that|
-  that.rdoc_example.returns_a(Hash).of_size(3).such_that {
-    self[:DocTest1] == true  and
-    self[:DocTest2] == false and
-    self[:DocTest3].is_a? ZeroDivisionError
+  that.rdoc_example.returns_a(Hash).of_size(3).such_that {|h|
+    h[:DocTest1] == true  and
+    h[:DocTest2] == false and
+    h[:DocTest3].is_a? ZeroDivisionError
   }
-  that.readme_example.returns_a(Hash).of_size(3).such_that {
-    self[:ReadmeCase1] == true and
-    self[:ReadmeCase2].is_a? ZeroDivisionError and
-    self[:ReadmeCase3] == false
+  that.readme_example.returns_a(Hash).of_size(3).such_that {|h|
+    h[:ReadmeCase1] == true and
+    h[:ReadmeCase2].is_a? ZeroDivisionError and
+    h[:ReadmeCase3] == false
   }
 end
 

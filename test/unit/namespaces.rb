@@ -20,7 +20,7 @@ Graham.pp(Namespace) do |that|
   }.and {!respond_to? :rdoc_example
   }.and { respond_to? :namespacing}
 
-  that.initialization.is 1
-  that.reinitialization.is 1
+  that.initialization.returns 1
+  that.reinitialization.returns 1
 end
 

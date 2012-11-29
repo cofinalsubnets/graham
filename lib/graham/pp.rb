@@ -8,7 +8,7 @@ module Graham
     PLAIN = "\x1b[0m"
     GREEN = "\x1b[32m"
     RED   = "\x1b[31m"
-    def initialize(results, bt=0, out=$stdout, color=true)
+    def initialize(results, bt=(ENV['backtrace']||0).to_i, out=$stdout, color=true)
       @results, @bt, @out, @color = results, bt, out, color
     end
     def pp
