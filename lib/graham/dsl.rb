@@ -1,20 +1,20 @@
 module Graham
   class DSL < Mallow::BasicDSL
-    include Mallow::DSL::Matchers
+    include ::Mallow::DSL::Matchers
     def self.build_core(ns)
       yield(dsl = new(ns))
-      dsl.send(:rule!).core
+      dsl.__send__(:rule!).core
     end
 
     def initialize(ns)
-      @core, @ns = Core.new, ns
+      @core, @ns = ::Graham::Core.new, ns
       reset!
     end
 
     def method_missing(msg, *args, &b)
       case msg.to_s
       when /^((and|that)_)+(.+)$/
-        respond_to?($3)? send($3, *args, &b) : super
+        respond_to?($3)? __send__($3, *args, &b) : super
       else
         _case @ns, msg, args, b
       end
@@ -29,7 +29,7 @@ module Graham
 
     # Specify the subject for the next test.
     def subject(obj)
-      TestCase::Proxy.new self, obj
+      ::Graham::TestCase::Proxy.new self, obj
     end
 
     def raises(x=nil)
@@ -90,8 +90,8 @@ module Graham
     end
 
     def _case(obj, msg, args, blk)
-      core.cases << (tc=TestCase.new obj, msg, args, blk)
-      (conditions.empty?? self : rule!).send(:push) {|e|e==tc}
+      core.cases << (tc=::Graham::TestCase.new obj, msg, args, blk)
+      (conditions.empty?? self : rule!).__send__(:push) {|e|e==tc}
     end
   end
 end
