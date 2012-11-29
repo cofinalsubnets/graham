@@ -17,6 +17,10 @@ module Graham
         @dsl,@obj=dsl,obj
       end
 
+      def ==(*args, &blk)
+        method_missing :==, *args, &blk
+      end
+
       def method_missing(msg,*args,&blk)
         @dsl.send :_case,@obj,msg,args,blk
       end

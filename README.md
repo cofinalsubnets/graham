@@ -11,7 +11,7 @@ Features
 
 * Dandy DSL
 * Zero namespace pollution
-* Hackable with a small code footprint
+* Hackable with a small code footprint ( Graham + Mallow < 350 SLOC )
 * Testing paradigm does not necessitate the gratuitous reinvention of such language features as inheritance, namespacing, and variable assignment (unlike some other frameworks that i sometimes have to use :/)
 
 Installation

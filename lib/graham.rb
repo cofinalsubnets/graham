@@ -1,4 +1,3 @@
-$LOAD_PATH << File.dirname(__FILE__)
 require 'mallow'
 require 'graham/version'
 # == A miniature test engine powered by Mallow
@@ -29,6 +28,7 @@ module Graham
   autoload :PP,       'graham/pp'
   autoload :RakeTask, 'graham/rake_task'
   autoload :DSL,      'graham/dsl'
+  autoload :TestCase, 'graham/test_case'
   class << self
     # A convenience method that builds and executes a Graham::Core
     # in the given namespace (defaults to Cases). See documentation for

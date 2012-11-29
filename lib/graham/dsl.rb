@@ -1,4 +1,3 @@
-require 'graham/test_case'
 module Graham
   class DSL < Mallow::BasicDSL
     include Mallow::DSL::Matchers
