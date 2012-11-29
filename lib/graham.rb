@@ -28,17 +28,16 @@ module Graham
   autoload :PP,       'graham/pp'
   autoload :RakeTask, 'graham/rake_task'
   autoload :DSL,      'graham/dsl'
-  autoload :TestCase, 'graham/test_case'
   class << self
     # A convenience method that builds and executes a Graham::Core
     # in the given namespace (defaults to Cases). See documentation for
     # Graham for more on usage.
-    def test(ns=nil, &b)
+    def test(ns, &b)
       DSL.build_core(ns, &b).test
     end
     # A convenience method that calls ::test and passes the output to a
     # pretty printer.
-    def pp(ns=nil, &b)
+    def pp(ns, &b)
       PP.new(test ns,&b).pp
     end
     alias test! pp

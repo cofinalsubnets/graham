@@ -6,18 +6,14 @@ module Graham
       dsl.__send__(:rule!).core
     end
 
-    def initialize(ns)
-      @core, @ns = ::Graham::Core.new, ns
+    def initialize(subj)
+      @core, @subj = ::Graham::Core.new, subj
       reset!
     end
 
     def method_missing(msg, *args, &b)
-      case msg.to_s
-      when /^((and|that)_)+(.+)$/
-        respond_to?($3)? __send__($3, *args, &b) : super
-      else
-        _case @ns, msg, args, b
-      end
+      core.cases << (tc=TestCase.new @subj, msg, args, b)
+      (conditions.empty?? self : rule!).__send__(:push) {|e|e==tc}
     end
 
     # Add a condition on a test case's return value. If the given block
@@ -25,11 +21,6 @@ module Graham
     # value.
     def where(&b)
       push {|e| preproc(b).call e.go }
-    end
-
-    # Specify the subject for the next test.
-    def subject(obj)
-      ::Graham::TestCase::Proxy.new self, obj
     end
 
     def raises(x=nil)
@@ -58,14 +49,17 @@ module Graham
       }
     end
 
+    def and(&b)
+      b ? where(&b) : self
+    end
+
     alias is      this
     alias returns this
     alias equals  this
 
     alias is_such_that where
     alias such_that    where
-    alias that         where
-    alias and          where
+    alias that         and
 
     alias raises_an           raises
     alias raises_a            raises
@@ -81,18 +75,22 @@ module Graham
     alias returns_a  a
     alias returns_an a
 
-    alias []   subject
-
     private
     def push(&p)
       conditions << p
       self
     end
 
-    def _case(obj, msg, args, blk)
-      core.cases << (tc=::Graham::TestCase.new obj, msg, args, blk)
-      (conditions.empty?? self : rule!).__send__(:push) {|e|e==tc}
+    class TestCase < Struct.new(:obj, :msg, :args, :blk)
+      def go
+        defined?(@val) ? @val : (@val = obj.send msg, *args, &blk)
+      end
+
+      def to_s
+        "#{msg}#{"(#{args.join ', '})" if args.any?} #{" {...}" if blk}"
+      end
     end
+
   end
 end
 
