@@ -4,6 +4,6 @@ class Arguments
   end
 end
 
-Graham.pp(Arguments) {|that|
+Graham.pp(Arguments.new) {|that|
   that.doubling(2).equals 4
 }

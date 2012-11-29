@@ -1,3 +1,4 @@
+require 'graham/test_case'
 module Graham
   class DSL < Mallow::BasicDSL
     include Mallow::DSL::Matchers
@@ -16,17 +17,20 @@ module Graham
       when /^((and|that)_)+(.+)$/
         respond_to?($3)? send($3, *args, &b) : super
       else
-        _case TestCase.new((@obj ? _unprime : @ns.new), msg, args, b)
+        _case @ns, msg, args, b
       end
     end
 
+    # Add a condition on a test case's return value. If the given block
+    # has no parameters, it is evaluated in the context of the return
+    # value.
     def where(&b)
       push {|e| preproc(b).call e.go }
     end
 
+    # Specify the subject for the next test.
     def subject(obj)
-      @obj=obj
-      self
+      TestCase::Proxy.new self, obj
     end
 
     def raises(x=nil)
@@ -77,7 +81,8 @@ module Graham
     alias is_an      a
     alias returns_a  a
     alias returns_an a
-    alias [] subject
+
+    alias []   subject
 
     private
     def push(&p)
@@ -85,22 +90,9 @@ module Graham
       self
     end
 
-    def _unprime
-      obj=@obj
-      @obj=nil
-      obj
-    end
-
-    def _case(tc)
-      core.cases << tc
+    def _case(obj, msg, args, blk)
+      core.cases << (tc=TestCase.new obj, msg, args, blk)
       (conditions.empty?? self : rule!).send(:push) {|e|e==tc}
-    end
-
-    class TestCase < Struct.new('TestCase', :obj, :msg, :args, :blk)
-      def go; obj.send msg, *args, &blk end
-      def to_s
-        "#{Class===obj ? '::' : ?#}#{msg}(#{args.join ', '})#{" {...}" if blk}"
-      end
     end
   end
 end
