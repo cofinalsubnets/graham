@@ -127,6 +127,9 @@ module Graham
       def go
         defined?(@val) ? @val : (@val = obj.send msg, *args, &blk)
       end
+      def to_s
+        "#{Class===obj ? "#{obj}::" : "#{obj.class}#"}#{msg}(#{args.join ', '})"
+      end
     end
 
   end

@@ -13,11 +13,11 @@ module Graham
     def pp
       cases.each do |tc|
         m=if tc.pass
-          [hi('PASS', GREEN), lo(tc.msg)]
+          [hi('PASS', GREEN), lo(tc.to_s)]
         elsif tc.xptn
-          [hi('XPTN', RED),   lo(tc.msg), tc.xptn.class.name, tc.xptn.message] + backtrace(tc.xptn)
+          [hi('XPTN', RED),   lo(tc.to_s), tc.xptn.class.name, tc.xptn.message] + backtrace(tc.xptn)
         else
-          [hi('FAIL', RED),   lo(tc.msg), display(tc)]
+          [hi('FAIL', RED),   lo(tc.to_s), display(tc)]
         end.join ' :: '
         puts m
       end
@@ -27,8 +27,8 @@ module Graham
       bt>0 ? ["\n" << e.backtrace.first(bt).map {|s| "  "+s}.join("\n")] : []
     end
 
-    def hi(str, c); BOLD+c+str.to_s  end
-    def lo(str);    PLAIN+str.to_s  end
+    def hi(str, c); BOLD+c+str  end
+    def lo(str);    PLAIN+str   end
 
     def display(tc)
       "unexpected #{"instance of #{tc.go.class}" rescue "exception"}"

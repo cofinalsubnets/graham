@@ -28,7 +28,7 @@ Graham test cases are just ordinary methods on arbitrary objects:
 ```ruby
   Graham.test(500) {|that|
     that.it.is_a(Fixnum).and.that.it.is {even?}
-  } #=> {#<TestCase ...> => true, #<TestCase ...> => true}
+  }
 ```
 You can inline all your tests if you want to, but a less reckless approach (and one that coaxes nicer output out of the pretty printer) looks like:
 ```ruby
