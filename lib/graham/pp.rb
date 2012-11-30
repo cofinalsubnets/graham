@@ -19,20 +19,20 @@ module Graham
         when false
           [hi('FAIL', RED),   lo(tc), display(tc)]
         else
-          [hi('XPTN', RED),   lo(tc), result.class.name, result.message] + backtrace(result, bt)
+          [hi('XPTN', RED),   lo(tc), result.class.name, result.message] + backtrace(result)
         end.join ' :: '
       end
     end
     private
-    def backtrace(e,n)
-      n>0 ? ["\n" << e.backtrace.first(n).map {|s| "  "+s}.join("\n")] : []
+    def backtrace(e)
+      bt>0 ? ["\n" << e.backtrace.first(bt).map {|s| "  "+s}.join("\n")] : []
     end
 
     def hi(str, c); (color ? BOLD+c : '')+str.to_s  end
     def lo(str);    (color ? PLAIN  : '')+str.to_s  end
 
     def display(tc)
-      "got an unexpected #{"instance of #{tc.go.class}" rescue "exception"}"
+      "unexpected #{"instance of #{tc.go.class}" rescue "exception"}"
     end
   end
 end

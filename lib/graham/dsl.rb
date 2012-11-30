@@ -1,13 +1,15 @@
 module Graham
   class DSL < Mallow::BasicDSL
     include ::Mallow::DSL::Matchers
+    attr_reader :cases
+
     def self.build_core(ns)
       yield(dsl = new(ns))
-      dsl.__send__(:rule!).core
+      [ dsl.finish!, dsl.cases ]
     end
 
     def initialize(subj)
-      @core, @subj = ::Graham::Core.new, subj
+      @core, @subj, @cases = ::Mallow::Core.new, subj, []
       reset!
     end
 
@@ -24,10 +26,7 @@ module Graham
 
     # Expose the test object as a test case, so that the next condition
     # given will be applied directly to the object. The current implementation
-    # is an egregious hack using Object#tap, which produces fairly
-    # sub-optimal output through the pretty printer. This might make 
-    # test specifications more semantic in some cases but it's probably better
-    # to access the test object through its own methods instead.
+    # is an egregious hack using Object#tap and will probably be replaced.
     def it
       _case(:tap, [], ::Proc.new {})
     end
@@ -56,17 +55,17 @@ module Graham
     end
 
     # With an argument _x_, if the case raises an exception _e_ such that
-    # _x_ === _e_, returns false; if the case raises no exception, returns
-    # true; if the case raises an unexpected exception, raises the exception.
-    # With no argument, returns true if no exception is raised, else raises
-    # the exception.
+    # _x_ === _e_, causes the test to fail with _e_; else passes. With no
+    # argument, passes if no exception is raised, else raises the exception.
     def does_not_raise(x=nil)
       push {|tc|
         begin
           tc.go
           true
         rescue x => e
-          false
+          raise e
+        rescue
+          x ? true : raise(e)
         end
       }
     end
@@ -81,6 +80,7 @@ module Graham
 
     alias returns this
     alias equals  this
+    alias ==      this
 
     alias is_such_that where
     alias such_that    where
@@ -98,6 +98,11 @@ module Graham
     alias returns_a  a
     alias returns_an a
 
+    def finish!
+      rule!.*.actions << ::Proc.new {|e|e.pass=false;e}
+      core << ::Mallow::Rule::Builder[ conditions, actions ]
+    end
+
     protected
     def push(&p)
       conditions << p
@@ -106,17 +111,18 @@ module Graham
 
     private
     def _case(msg,args,b)
-      core.cases << (tc=TestCase.new @subj, msg, args, b, core.cases.size)
-      rule!.push {|e|e==tc}
+      @cases << (tc=TestCase.new @subj, msg, args, b)
+      (conditions.any?? rule! : self).push {|e|e==tc}
     end
 
-    class TestCase < ::Struct.new(:obj, :msg, :args, :blk, :id)
+    def rule!
+      actions<<->(e){e.pass=true;e}
+      super
+    end
+
+    class TestCase < ::Struct.new(:obj, :msg, :args, :blk, :pass, :xptn)
       def go
         defined?(@val) ? @val : (@val = obj.send msg, *args, &blk)
-      end
-
-      def to_s
-        "#{msg}#{"(#{args.join ', '})" if args.any?} #{" {...}" if blk}"
       end
     end
 

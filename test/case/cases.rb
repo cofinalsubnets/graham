@@ -42,7 +42,7 @@ Graham.test!(TestCases.new) do |that|
 end
 
 Graham.test!(500) {|that|
-  that.it==500
-  that.it!=501
+  that.it == 500
+  that.it != 501
 }
 
