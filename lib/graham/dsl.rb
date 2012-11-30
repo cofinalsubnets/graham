@@ -1,3 +1,4 @@
+require 'pry'
 module Graham
   class DSL < Mallow::BasicDSL
     include ::Mallow::DSL::Matchers
@@ -49,7 +50,7 @@ module Graham
         rescue x => e
           true
         rescue   => e
-          x ? raise(e) : true
+          x ? ::Kernel.raise(e) : true
         end
       }
     end
@@ -63,9 +64,9 @@ module Graham
           tc.go
           true
         rescue x => e
-          raise e
+          ::Kernel.raise e
         rescue
-          x ? true : raise(e)
+          x ? true : ::Kernel.raise(e)
         end
       }
     end
@@ -81,6 +82,8 @@ module Graham
     alias returns this
     alias equals  this
     alias ==      this
+    alias !=      not_this
+    alias is_not  not_this
 
     alias is_such_that where
     alias such_that    where

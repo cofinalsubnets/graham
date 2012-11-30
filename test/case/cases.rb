@@ -30,14 +30,11 @@ class TestCases
 end
 
 Graham.test!(TestCases.new) do |that|
-  that.rdoc_example.returns_a(Hash).of_size(3).such_that {
-    values[0..1] == [true, false] and
-    values[2].is_a? ZeroDivisionError
+  that.rdoc_example.returns_an(Array).of_size(3).such_that {
+    map(&:pass) == [true, false, false]
   }
-  that.readme_example.returns_a(Hash).of_size(3).such_that {
-    values[0] == true and
-    values[1].is_a?(ZeroDivisionError) and
-    values[2].is_a?(NameError)
+  that.readme_example.returns_an(Array).of_size(3).such_that {
+    map(&:pass) == [true, false, false]
   }
 end
 
