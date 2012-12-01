@@ -1,4 +1,3 @@
-require 'mallow'
 require 'graham/version'
 # == A miniature test engine powered by Mallow
 # ---
@@ -18,26 +17,18 @@ require 'graham/version'
 module Graham
   autoload :PP,       'graham/pp'
   autoload :RakeTask, 'graham/rake_task'
-  autoload :DSL,      'graham/dsl'
+  autoload :Test,     'graham/test'
+
   class << self
-    def test(ns, &b)
-      core, cases = DSL.build_core(ns, &b)
-      cases.map do |tc|
-        begin
-          core.fluff1 tc
-        rescue => e
-          tc.pass=false
-          tc.xptn=e
-          tc
-        end
-      end
+    def test(obj,&b)
+      c = Test::Group.new(Test::Case.new obj)
+      yield c if block_given?
+      c.test
     end
-    # A convenience method that calls ::test and passes the output to a
-    # pretty printer.
-    def test!(ns, &b)
-      PP.new(test ns,&b).pp
+
+    def test!(obj,&b)
+      PP.new(test(obj,&b)).print
     end
-    alias pp test!
   end
 end
 

@@ -1,6 +1,4 @@
 module Graham
-  # A trivial pretty printer for test output.
-  # TODO: replace with something better
   class PP
     attr_reader :cases, :bt
     BOLD  = "\x1b[1m"
@@ -10,28 +8,38 @@ module Graham
     def initialize(cases, bt=(ENV['backtrace']||0).to_i)
       @cases, @bt = cases, bt
     end
-    def pp
-      cases.each do |tc|
-        m=if tc.pass
-          [hi('PASS', GREEN), lo(tc.to_s)]
-        elsif tc.xptn
-          [hi('XPTN', RED),   lo(tc.to_s), tc.xptn.class.name, tc.xptn.message] + backtrace(tc.xptn)
-        else
-          [hi('FAIL', RED),   lo(tc.to_s), display(tc)]
-        end.join ' :: '
-        puts m
+
+    def print
+      cases.flatten.each do |tc|
+        puts [pfx(tc),show(tc),backtrace(tc)].compact * ' :: '
       end
+      cases
     end
+
     private
-    def backtrace(e)
-      bt>0 ? ["\n" << e.backtrace.first(bt).map {|s| "  "+s}.join("\n")] : []
+    def backtrace(tc)
+      "\n" << e.backtrace.first(bt) * "\n" if tc.xptn and bt>0
     end
 
-    def hi(str, c); BOLD+c+str  end
-    def lo(str);    PLAIN+str   end
+    def hi(str, c); BOLD+c+str+PLAIN end
 
-    def display(tc)
-      "unexpected #{"instance of #{tc.go.class}" rescue "exception"}"
+    def show(tc)
+      if Class === tc.obj
+        "#{tc.obj}#{"::#{tc.msg}" if tc.msg}"
+      else
+        "#{tc.obj.class}#{"##{tc.msg}" if tc.msg}"
+      end << "#{"(%s)" % tc.args.*(', ') if tc.args and tc.args.any?}"
+    end
+
+    def pfx(tc)
+      if tc.pass
+        hi 'PASS', GREEN
+      elsif tc.xptn
+        hi 'XPTN', RED
+      else
+        hi 'FAIL', RED
+      end
     end
   end
 end
+

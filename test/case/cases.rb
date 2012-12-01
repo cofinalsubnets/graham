@@ -29,6 +29,7 @@ class TestCases
   end
 end
 
+=begin
 Graham.test!(TestCases.new) do |that|
   that.rdoc_example.returns_an(Array).of_size(3).such_that {
     map(&:pass) == [true, false, false]
@@ -44,4 +45,12 @@ Graham.test!(500) {|that|
   that.<(1000).returns true
   that.odd?.is false
 }
+=end
+Graham.test!(TestCases.new) {|that|
+  that.calling(:squaring) { |squaring|
+    squaring.with(2).returns 4
+    squaring.with(5).returns 25
+  }
+}
+
 
